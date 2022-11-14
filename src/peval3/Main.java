@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class Main {
 
     static String[] MENU_OPCIONES = {
-            "Crear",
+            "Pasar base de datos de SQL a Neodatis",
             "Consultar",
             "Actualizar",
             "Borrar",
