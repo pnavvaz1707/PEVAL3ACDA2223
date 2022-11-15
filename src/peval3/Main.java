@@ -1,128 +1,115 @@
 package peval3;
 
-import org.neodatis.odb.ODB;
-import org.neodatis.odb.ODBFactory;
-import org.neodatis.odb.Objects;
+import org.neodatis.odb.*;
 import org.neodatis.odb.core.query.IQuery;
+import org.neodatis.odb.core.query.IValuesQuery;
 import org.neodatis.odb.core.query.criteria.Where;
 import org.neodatis.odb.impl.core.query.criteria.CriteriaQuery;
+import org.neodatis.odb.impl.core.query.values.ValuesCriteriaQuery;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Main {
 
     static String[] MENU_OPCIONES = {
             "Pasar base de datos de SQL a Neodatis",
-            "Consultar",
-            "Actualizar",
-            "Borrar",
+            "Registrar un libro",
+            "Eliminar un usuario",
+            "Modificar un préstamo",
+            "Ver los préstamos entregados tarde por un usuario específico",
+            "Ver los libros de un género y precio determinados",
+            "Ver los préstamos realizados en una provincia y período de tiempo determinados",
             "Salir"
     };
 
     static Scanner teclado = new Scanner(System.in);
 
     static ODB odb = ODBFactory.open(Datos.RUTA_BIBLIOTECA_NEODATIS);
-    static Connection conexion;
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) {
+        int respuesta;
+        do {
+            Utilidades.crearMenu(MENU_OPCIONES);
+            respuesta = Utilidades.solicitarEnteroEnUnRango(1, MENU_OPCIONES.length, "Seleccione una opción");
+            System.out.println("Has seleccionado --> " + MENU_OPCIONES[respuesta - 1]);
+            switch (respuesta) {
+                case 1:
+                    Conversor.convertirSQLtoODB("biblioteca", "root", "", odb);
+                    break;
+                case 2:
+                    int codigoMax = Integer.parseInt(odb.getValues(new ValuesCriteriaQuery(Libro.class).max("codigoLibro")).getFirst().getByAlias("codigoLibro").toString());
+                    String nombreLibro = Utilidades.leerCadena("Introduce el nombre del libro");
+                    String editorial = Utilidades.leerCadena("Introduce la editorial del libro");
+                    String autor = Utilidades.leerCadena("Introduce el autor del libro");
+                    String genero = Utilidades.leerCadena("Introduce el género del libro");
+                    String paisAutor = Utilidades.leerCadena("Introduce el país del autor del libro");
+                    int numPaginas = Utilidades.solicitarEnteroEnUnRango(1, 3500, "Introduce el número de páginas del libro: ");
+                    int anyoEdicion = Utilidades.solicitarEnteroEnUnRango(868, LocalDateTime.now().getYear(), "Introduce el año de edición del libro");
+                    String precioLibro = Utilidades.leerCadena("Introduce el precio del libro");
+                    break;
+                case 3:
+                    Objects<Usuario> usuarios = odb.getObjects(Usuario.class);
+                    int contador = 0;
+                    Usuario usuario;
+                    boolean sigue = true;
+                    while (usuarios.hasNext() && sigue) {
+                        usuario = usuarios.next();
+                        System.out.println("Código de usuario: " + usuario.getCodigoUsuario());
+                        System.out.println("Nombre: " + usuario.getNombre());
+                        System.out.println("Apellidos: " + usuario.getApellidos());
+                        System.out.println("DNI: " + usuario.getDni());
+                        System.out.println("Domicilio: " + usuario.getDomicilio());
+                        System.out.println("Población: " + usuario.getPoblacion());
+                        System.out.println("Provincia: " + usuario.getProvincia());
+                        System.out.println("Fecha de nacimiento (DD/MM/YYYY): " + usuario.getFechaNac());
+                        System.out.println("////////////////////////////////////////////////////////////////////////////////");
+                        contador++;
+                        if (contador == 10) {
+                            sigue = sigPagina();
+                            contador = 0;
+                        }
+                    }
+                    System.out.println("Introduce el código del usuario que desees borrar");
+                    int codigoSeleccionado = teclado.nextInt();
+                    IQuery query = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", codigoSeleccionado));
+                    usuario = (Usuario) odb.getObjects(query).getFirst();
+                    System.out.println("Código del usuario seleccionado: " + usuario.getCodigoUsuario());
+                    System.out.println("Nombre del usuario seleccionado: " + usuario.getNombre());
 
-
-        Class.forName("com.mysql.jdbc.Driver");
-        conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/biblioteca", "root", "");
-
-        try {
-            crearLibros();
-        } catch (SQLException e) {
-            System.err.println("Ha habido un error en la creación de libros");
-        }
-        try {
-            crearUsuarios();
-        } catch (SQLException e) {
-            System.err.println("Ha habido un error en la creación de usuarios");
-        }
-        try {
-            crearPrestamos();
-        } catch (SQLException e) {
-            System.err.println("Ha habido un error en la creación de prestamos (" + e.getMessage() + ")");
-        }
-
-        Utilidades.crearMenuCon0(MENU_OPCIONES);
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+            }
+        } while (respuesta != MENU_OPCIONES.length);
     }
 
-    private static void crearLibros() throws SQLException {
-
-        Statement sentencia = conexion.createStatement();
-        String sql = "SELECT * FROM LIBROS";
-        ResultSet rs = sentencia.executeQuery(sql);
-
-        int codigoLibro, numPaginas, anyoEdicion;
-        String nombreLibro, editorial, autor, genero, paisAutor, precioLibro;
-
-        while (rs.next()) {
-            codigoLibro = rs.getInt(1);
-            nombreLibro = rs.getString(2);
-            editorial = rs.getString(3);
-            autor = rs.getString(4);
-            genero = rs.getString(5);
-            paisAutor = rs.getString(6);
-            numPaginas = rs.getInt(7);
-            anyoEdicion = rs.getInt(8);
-            precioLibro = rs.getString(9);
-            odb.store(new Libro(codigoLibro, nombreLibro, editorial, autor, genero, paisAutor, numPaginas, anyoEdicion, precioLibro));
-            odb.commit();
-        }
-    }
-
-    private static void crearUsuarios() throws SQLException {
-        Statement sentencia = conexion.createStatement();
-        String sql = "SELECT * FROM USUARIO";
-        ResultSet rs = sentencia.executeQuery(sql);
-
-        int codigoUsuario;
-        String nombre, apellidos, dni, domicilio, poblacion, provincia, fechaNac;
-
-        while (rs.next()) {
-            codigoUsuario = rs.getInt(1);
-            nombre = rs.getString(2);
-            apellidos = rs.getString(3);
-            dni = rs.getString(4);
-            domicilio = rs.getString(5);
-            poblacion = rs.getString(6);
-            provincia = rs.getString(7);
-            fechaNac = rs.getString(8);
-            odb.store(new Usuario(codigoUsuario, nombre, apellidos, dni, domicilio, poblacion, provincia, fechaNac));
-            odb.commit();
-        }
-    }
-
-    private static void crearPrestamos() throws SQLException {
-        Statement sentencia = conexion.createStatement();
-        String sql = "SELECT * FROM PRESTAMOS";
-        ResultSet rs = sentencia.executeQuery(sql);
-
-        int codigoPrestamo;
-        Libro libro;
-        Usuario usuario;
-        String fechaSalida, fechaMaxDevolucion, fechaDevolucion;
-
-        IQuery query;
-
-
-        while (rs.next()) {
-            codigoPrestamo = rs.getInt(1);
-
-            query = new CriteriaQuery(Libro.class, Where.equal("codigoLibro", rs.getInt(2)));
-            libro = (Libro) odb.getObjects(query).getFirst();
-
-            query = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", rs.getInt(3)));
-            usuario = (Usuario) odb.getObjects(query).getFirst();
-
-            fechaSalida = rs.getString(4);
-            fechaMaxDevolucion = rs.getString(5);
-            fechaDevolucion = rs.getString(6);
-            odb.store(new Prestamo(codigoPrestamo, libro, usuario, fechaSalida, fechaMaxDevolucion, fechaDevolucion));
-            odb.commit();
-        }
+    public static boolean sigPagina() {
+        boolean sigue = false;
+        boolean sigPagina = false;
+        do {
+            System.out.println("¿Desea ver los siguientes 10 números?");
+            String respuesta = teclado.nextLine();
+            if (respuesta.toLowerCase().equals("si")) {
+                sigPagina = true;
+                sigue = false;
+            } else if (respuesta.toLowerCase().equals("no")) {
+                sigPagina = false;
+                sigue = false;
+            } else {
+                System.err.println("Debe introducir la palabra 'si' o 'no'");
+                sigue = true;
+            }
+        } while (sigue);
+        return sigPagina;
     }
 }
