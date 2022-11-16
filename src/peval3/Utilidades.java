@@ -47,8 +47,8 @@ public class Utilidades {
                 System.out.println(msg);
                 respuesta = teclado.nextLine();
 
-                if (respuesta == null) {
-                    throw new Exception("No puedes introducir un libro vacío");
+                if (respuesta.equals("")) {
+                    throw new Exception("No puedes dejar el campo vacío");
                 }
                 sigue = false;
 
@@ -57,5 +57,51 @@ public class Utilidades {
             }
         }
         return respuesta;
+    }
+
+    public static double solicitarDoubleEnUnRango(double limiteInferior, double limiteSuperior, String msg) {
+        Scanner teclado = new Scanner(System.in);
+        boolean sigue = true;
+        double num = 0;
+
+        while (sigue) {
+            try {
+                System.out.println(msg);
+
+                num = teclado.nextDouble();
+                if (num < limiteInferior || num > limiteSuperior) {
+                    throw new Exception("El número debe estar comprendido en el siguiente rango [" + limiteInferior + "," + limiteSuperior + "]");
+                }
+                sigue = false;
+
+            } catch (InputMismatchException e) {
+                System.err.println("Debe introducir un número (si es decimal debe llevar el separador ',')");
+                teclado.nextLine();
+
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        return num;
+    }
+
+    public static boolean sigPagina() {
+        Scanner teclado = new Scanner(System.in);
+        boolean sigue = false;
+        boolean sigPagina = false;
+        do {
+            System.out.println("¿Desea ver los siguientes 10 números?");
+            String respuesta = teclado.nextLine();
+            if (respuesta.toLowerCase().equals("si")) {
+                sigPagina = true;
+                sigue = false;
+            } else if (respuesta.toLowerCase().equals("no")) {
+                sigue = false;
+            } else {
+                System.err.println("Debe introducir la palabra 'si' o 'no'");
+                sigue = true;
+            }
+        } while (sigue);
+        return sigPagina;
     }
 }

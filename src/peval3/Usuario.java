@@ -96,4 +96,20 @@ public class Usuario {
     public void setFechaNac(String fechaNac) {
         this.fechaNac = fechaNac;
     }
+
+
+    /**
+     * Método toString de la clase Usuario
+     */
+    @Override
+    public String toString() {
+        return "Código de usuario: " + this.getCodigoUsuario() +
+                "\n\tNombre: " + this.getNombre() +
+                "\t\tApellidos: " + this.getApellidos() +
+                "\n\tDNI: " + this.getDni() +
+                "\n\tDomicilio: " + this.getDomicilio() +
+                "\n\tPoblación: " + this.getPoblacion() +
+                "\t\tProvincia: " + this.getProvincia() +
+                "\n\tFecha de nacimiento: " + this.getFechaNac();
+    }
 }

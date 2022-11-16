@@ -74,4 +74,16 @@ public class Prestamo {
     public void setFechaDevolucion(String fechaDevolucion) {
         this.fechaDevolucion = fechaDevolucion;
     }
+
+    @Override
+    public String toString() {
+        return "Código del préstamo: " + this.getCodigoPrestamo() +
+                "\n\tNombre del libro: " + this.getLibro().getNombreLibro() +
+                "\t\tEditorial del libro: " + this.getLibro().getEditorial() +
+                "\n\tNombre del usuario: " + this.getUsuario().getNombre() +
+                "\t\tDNI del usuario: " + this.getUsuario().getDni() +
+                "\n\tFecha salida: " + this.getFechaSalida() +
+                "\n\tFecha máxima de devolución: " + this.getFechaMaxDevolucion() +
+                "\t\tFecha de devolución: " + this.getFechaDevolucion();
+    }
 }

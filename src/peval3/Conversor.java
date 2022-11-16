@@ -7,9 +7,16 @@ import org.neodatis.odb.core.query.criteria.Where;
 import org.neodatis.odb.impl.core.query.criteria.CriteriaQuery;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
 
 public class Conversor {
     private static Connection conexion;
+
+    private static final String formato = "dd/MM/yyyy";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formato);
 
     public static void convertirSQLtoODB(String bdNombre, String usuario, String password, ODB odb) {
         try {
@@ -117,5 +124,25 @@ public class Conversor {
             odb.store(new Prestamo(codigoPrestamo, libro, usuario, fechaSalida, fechaMaxDevolucion, fechaDevolucion));
             odb.commit();
         }
+    }
+
+    public static String obtenerFechaString() {
+        Scanner teclado = new Scanner(System.in);
+        LocalDate fecha = null;
+        boolean sigue = true;
+        while (sigue) {
+            try {
+                String fechaTeclado = teclado.nextLine();
+                fecha = LocalDate.parse(fechaTeclado, formatter);
+                sigue = false;
+            } catch (DateTimeParseException e) {
+                System.err.println("La fecha introducida es incorrecta, debe cumplir el formato (" + formato + ")");
+            }
+        }
+        return fecha.format(formatter);
+    }
+
+    public static LocalDate obtenerFechaLocalDate(String fechaString) {
+        return LocalDate.parse(fechaString, formatter);
     }
 }

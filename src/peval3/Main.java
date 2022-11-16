@@ -39,47 +39,76 @@ public class Main {
                     Conversor.convertirSQLtoODB("biblioteca", "root", "", odb);
                     break;
                 case 2:
-                    int codigoMax = Integer.parseInt(odb.getValues(new ValuesCriteriaQuery(Libro.class).max("codigoLibro")).getFirst().getByAlias("codigoLibro").toString());
-                    String nombreLibro = Utilidades.leerCadena("Introduce el nombre del libro");
-                    String editorial = Utilidades.leerCadena("Introduce la editorial del libro");
-                    String autor = Utilidades.leerCadena("Introduce el autor del libro");
-                    String genero = Utilidades.leerCadena("Introduce el género del libro");
-                    String paisAutor = Utilidades.leerCadena("Introduce el país del autor del libro");
-                    int numPaginas = Utilidades.solicitarEnteroEnUnRango(1, 3500, "Introduce el número de páginas del libro: ");
-                    int anyoEdicion = Utilidades.solicitarEnteroEnUnRango(868, LocalDateTime.now().getYear(), "Introduce el año de edición del libro");
-                    String precioLibro = Utilidades.leerCadena("Introduce el precio del libro");
+                    registrarLibro();
                     break;
                 case 3:
-                    Objects<Usuario> usuarios = odb.getObjects(Usuario.class);
-                    int contador = 0;
-                    Usuario usuario;
-                    boolean sigue = true;
-                    while (usuarios.hasNext() && sigue) {
-                        usuario = usuarios.next();
-                        System.out.println("Código de usuario: " + usuario.getCodigoUsuario());
-                        System.out.println("Nombre: " + usuario.getNombre());
-                        System.out.println("Apellidos: " + usuario.getApellidos());
-                        System.out.println("DNI: " + usuario.getDni());
-                        System.out.println("Domicilio: " + usuario.getDomicilio());
-                        System.out.println("Población: " + usuario.getPoblacion());
-                        System.out.println("Provincia: " + usuario.getProvincia());
-                        System.out.println("Fecha de nacimiento (DD/MM/YYYY): " + usuario.getFechaNac());
-                        System.out.println("////////////////////////////////////////////////////////////////////////////////");
-                        contador++;
-                        if (contador == 10) {
-                            sigue = sigPagina();
-                            contador = 0;
-                        }
-                    }
-                    System.out.println("Introduce el código del usuario que desees borrar");
-                    int codigoSeleccionado = teclado.nextInt();
-                    IQuery query = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", codigoSeleccionado));
-                    usuario = (Usuario) odb.getObjects(query).getFirst();
-                    System.out.println("Código del usuario seleccionado: " + usuario.getCodigoUsuario());
-                    System.out.println("Nombre del usuario seleccionado: " + usuario.getNombre());
+                    mostrarUsuarios();
 
+                    try {
+                        System.out.println("Introduce el código del usuario que desees borrar");
+                        Usuario usuario = obtenerUsuario();
+
+                        System.out.println("Teclee 1 si desea borrar a " + usuario.getNombre() + " con DNI: " + usuario.getDni());
+                        int respuestaBorrado = teclado.nextInt();
+
+                        if (respuestaBorrado == 1) {
+
+                            IQuery queryPrestamosUsuario = odb.criteriaQuery(Prestamo.class, Where.equal("usuario", usuario));
+
+                            Objects<Prestamo> prestamosABorrar = odb.getObjects(queryPrestamosUsuario);
+
+                            for (Prestamo prestamo : prestamosABorrar) {
+                                System.out.println(prestamo);
+                                System.out.println("//////////////////////////////////////////////////////////////////////////////");
+                                odb.delete(prestamo);
+                            }
+                            odb.delete(usuario);
+                            odb.commit();
+
+                            System.out.println("Se ha borrado el usuario y los préstamos relacionados con él");
+                        } else {
+                            System.out.println("El usuario no se ha borrado");
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        System.err.println("No existe un usuario con ese código");
+                    }
                     break;
                 case 4:
+                    mostrarPrestamos();
+
+                    System.out.println("Introduce el código del préstamo que desees modificar");
+                    int codigoPrestamoSel = teclado.nextInt();
+
+                    IQuery queryPrestamoSel = new CriteriaQuery(Prestamo.class, Where.equal("codigoPrestamo", codigoPrestamoSel));
+
+                    try {
+                        Prestamo prestamo = (Prestamo) odb.getObjects(queryPrestamoSel).getFirst();
+
+                        System.out.println("Este es el préstamo seleccionado: ");
+                        System.out.println(prestamo);
+
+                        System.out.println("Teclee 1 si seguro desea modificar el usuario de este préstamo");
+                        int respuestaModificacion = teclado.nextInt();
+
+                        if (respuestaModificacion == 1) {
+                            mostrarUsuarios();
+                            System.out.println("Selecciona el código de usuario al que desea asignarle este préstamo");
+                            try {
+                                Usuario usuario = obtenerUsuario();
+                                prestamo.setUsuario(usuario);
+                                odb.delete(prestamo);
+                                odb.store(prestamo);
+                                odb.commit();
+                            } catch (IndexOutOfBoundsException e) {
+                                System.err.println("El usuario seleccionado no existe");
+                            }
+
+                        } else {
+                            System.out.println("El usuario no se ha borrado");
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        System.err.println("No existe un usuario con ese código");
+                    }
                     break;
                 case 5:
                     break;
@@ -93,23 +122,90 @@ public class Main {
         } while (respuesta != MENU_OPCIONES.length);
     }
 
-    public static boolean sigPagina() {
-        boolean sigue = false;
-        boolean sigPagina = false;
-        do {
-            System.out.println("¿Desea ver los siguientes 10 números?");
-            String respuesta = teclado.nextLine();
-            if (respuesta.toLowerCase().equals("si")) {
-                sigPagina = true;
-                sigue = false;
-            } else if (respuesta.toLowerCase().equals("no")) {
-                sigPagina = false;
-                sigue = false;
-            } else {
-                System.err.println("Debe introducir la palabra 'si' o 'no'");
-                sigue = true;
+    private static Usuario obtenerUsuario() {
+        int codigoUsuarioSel = teclado.nextInt();
+
+        IQuery queryUsuarioSel = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", codigoUsuarioSel));
+        Usuario usuario = (Usuario) odb.getObjects(queryUsuarioSel).getFirst();
+        return usuario;
+    }
+
+    private static void mostrarUsuarios() {
+        Objects<Usuario> usuarios = odb.getObjects(Usuario.class);
+        Usuario usuario;
+
+        int contador = 0;
+        boolean sigue = true;
+
+        while (usuarios.hasNext() && sigue) {
+            usuario = usuarios.next();
+
+            System.out.println(usuario);
+            System.out.println("////////////////////////////////////////////////////////////////////////////////");
+            contador++;
+
+            if (contador == 10) {
+                sigue = Utilidades.sigPagina();
+                contador = 0;
             }
-        } while (sigue);
-        return sigPagina;
+        }
+    }
+
+    private static void mostrarPrestamos() {
+        Objects<Prestamo> prestamos = odb.getObjects(Prestamo.class);
+        Prestamo prestamo;
+
+        int contador = 0;
+        boolean sigue = true;
+
+        while (prestamos.hasNext() && sigue) {
+            prestamo = prestamos.next();
+
+            System.out.println(prestamo);
+            System.out.println("////////////////////////////////////////////////////////////////////////////////");
+            contador++;
+
+            if (contador == 10) {
+                sigue = Utilidades.sigPagina();
+                contador = 0;
+            }
+        }
+    }
+
+    private static void registrarLibro() {
+        int codigoMax = Integer.parseInt(odb.getValues(new ValuesCriteriaQuery(Libro.class).max("codigoLibro")).getFirst().getByAlias("codigoLibro").toString());
+
+        String nombreLibro, editorial, autor, genero, paisAutor, precioLibro;
+        int numPaginas, anyoEdicion;
+
+        //Bucle para que no se repita el libro introducido
+        do {
+            nombreLibro = Utilidades.leerCadena("Introduce el nombre del libro");
+            editorial = Utilidades.leerCadena("Introduce la editorial del libro");
+        } while (comprobarLibroDuplicado(nombreLibro, editorial));
+
+        autor = Utilidades.leerCadena("Introduce el autor del libro");
+        genero = Utilidades.leerCadena("Introduce el género del libro");
+        paisAutor = Utilidades.leerCadena("Introduce el país del autor del libro");
+        numPaginas = Utilidades.solicitarEnteroEnUnRango(1, 3500, "Introduce el número de páginas del libro: ");
+        anyoEdicion = Utilidades.solicitarEnteroEnUnRango(1000, LocalDateTime.now().getYear(), "Introduce el año de edición del libro");
+        precioLibro = String.valueOf(Utilidades.solicitarDoubleEnUnRango(0, Double.MAX_VALUE, "Introduce el precio del libro"));
+
+        System.out.println("-------------- El libro se ha registrado --------------");
+        odb.store(new Libro(codigoMax, nombreLibro, editorial, autor, genero, paisAutor, numPaginas, anyoEdicion, precioLibro));
+        odb.commit();
+    }
+
+    private static boolean comprobarLibroDuplicado(String nombreLibro, String editorial) {
+        boolean repetido = false;
+
+        IQuery queryNombreLibro = new CriteriaQuery(Libro.class, Where.equal("nombreLibro", nombreLibro));
+        IQuery queryEditorial = new CriteriaQuery(Libro.class, Where.equal("editorial", editorial));
+
+        if (odb.getObjects(queryNombreLibro).size() > 0 && odb.getObjects(queryEditorial).size() > 0) {
+            System.err.println("El libro " + nombreLibro + " de la editorial " + editorial + " ya existe");
+            repetido = true;
+        }
+        return repetido;
     }
 }

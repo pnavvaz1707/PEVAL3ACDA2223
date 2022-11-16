@@ -110,4 +110,20 @@ public class Libro {
     public void setPrecioLibro(String precioLibro) {
         this.precioLibro = precioLibro;
     }
+
+    /**
+     * Método toString de la clase Libro
+     */
+    @Override
+    public String toString() {
+        return "Código de libro: " + this.getCodigoLibro() +
+                "\n\tNombre: " + this.getNombreLibro() +
+                "\t\tEditorial: " + this.getEditorial() +
+                "\n\tGénero: " + this.getGenero() +
+                "\n\tAutor: " + this.getAutor() +
+                "\t\tPaís del autor: " + this.getPaisAutor() +
+                "\n\tNúmero de páginas: " + this.getNumPaginas() +
+                "\n\tAño de edición: " + this.getAnyoEdicion() +
+                "\n\tPrecio: " + this.getPrecioLibro();
+    }
 }
