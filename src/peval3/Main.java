@@ -1,13 +1,13 @@
 package peval3;
 
-import org.neodatis.odb.*;
+import org.neodatis.odb.ODB;
+import org.neodatis.odb.ODBFactory;
+import org.neodatis.odb.Objects;
 import org.neodatis.odb.core.query.IQuery;
-import org.neodatis.odb.core.query.IValuesQuery;
 import org.neodatis.odb.core.query.criteria.Where;
 import org.neodatis.odb.impl.core.query.criteria.CriteriaQuery;
 import org.neodatis.odb.impl.core.query.values.ValuesCriteriaQuery;
 
-import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
@@ -45,8 +45,7 @@ public class Main {
                     mostrarUsuarios();
 
                     try {
-                        System.out.println("Introduce el código del usuario que desees borrar");
-                        Usuario usuario = obtenerUsuario();
+                        Usuario usuario = obtenerUsuario("Introduce el código del usuario que desees borrar");
 
                         System.out.println("Teclee 1 si desea borrar a " + usuario.getNombre() + " con DNI: " + usuario.getDni());
                         int respuestaBorrado = teclado.nextInt();
@@ -91,12 +90,10 @@ public class Main {
                         int respuestaModificacion = teclado.nextInt();
 
                         if (respuestaModificacion == 1) {
-                            mostrarUsuarios();
-                            System.out.println("Selecciona el código de usuario al que desea asignarle este préstamo");
                             try {
-                                Usuario usuario = obtenerUsuario();
+                                mostrarUsuarios();
+                                Usuario usuario = obtenerUsuario("Selecciona el código de usuario al que desea asignarle este préstamo");
                                 prestamo.setUsuario(usuario);
-                                odb.delete(prestamo);
                                 odb.store(prestamo);
                                 odb.commit();
                             } catch (IndexOutOfBoundsException e) {
@@ -111,23 +108,35 @@ public class Main {
                     }
                     break;
                 case 5:
+                    mostrarUsuarios();
+                    Usuario usuario = obtenerUsuario("Selecciona el código de usuario del cual desea consultar sus préstamos tardíos");
+                    IQuery queryPrestamosUsuario = odb.criteriaQuery(Prestamo.class, Where.equal("usuario", usuario));
+
+                    Objects<Prestamo> prestamosUsuario = odb.getObjects(queryPrestamosUsuario);
+
+                    for (Prestamo prestamo : prestamosUsuario) {
+                        IQuery queryPrestamosTardios = odb.criteriaQuery(Prestamo.class, Where.gt("fechaDevolucion", prestamo.getFechaMaxDevolucion()));
+                        Prestamo prestamo1 = (Prestamo) odb.getObjects(queryPrestamosTardios).getFirst();
+                        System.err.println(prestamo1);
+                    }
+
+
                     break;
                 case 6:
                     break;
                 case 7:
                     break;
-                case 8:
-                    break;
             }
         } while (respuesta != MENU_OPCIONES.length);
     }
 
-    private static Usuario obtenerUsuario() {
+    private static Usuario obtenerUsuario(String texto) {
+        System.out.println(texto);
+
         int codigoUsuarioSel = teclado.nextInt();
 
         IQuery queryUsuarioSel = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", codigoUsuarioSel));
-        Usuario usuario = (Usuario) odb.getObjects(queryUsuarioSel).getFirst();
-        return usuario;
+        return (Usuario) odb.getObjects(queryUsuarioSel).getFirst();
     }
 
     private static void mostrarUsuarios() {
@@ -175,8 +184,9 @@ public class Main {
     private static void registrarLibro() {
         int codigoMax = Integer.parseInt(odb.getValues(new ValuesCriteriaQuery(Libro.class).max("codigoLibro")).getFirst().getByAlias("codigoLibro").toString());
 
-        String nombreLibro, editorial, autor, genero, paisAutor, precioLibro;
+        String nombreLibro, editorial, autor, genero, paisAutor;
         int numPaginas, anyoEdicion;
+        double precioLibro;
 
         //Bucle para que no se repita el libro introducido
         do {
@@ -189,7 +199,7 @@ public class Main {
         paisAutor = Utilidades.leerCadena("Introduce el país del autor del libro");
         numPaginas = Utilidades.solicitarEnteroEnUnRango(1, 3500, "Introduce el número de páginas del libro: ");
         anyoEdicion = Utilidades.solicitarEnteroEnUnRango(1000, LocalDateTime.now().getYear(), "Introduce el año de edición del libro");
-        precioLibro = String.valueOf(Utilidades.solicitarDoubleEnUnRango(0, Double.MAX_VALUE, "Introduce el precio del libro"));
+        precioLibro = Utilidades.solicitarDoubleEnUnRango(0, Double.MAX_VALUE, "Introduce el precio del libro");
 
         System.out.println("-------------- El libro se ha registrado --------------");
         odb.store(new Libro(codigoMax, nombreLibro, editorial, autor, genero, paisAutor, numPaginas, anyoEdicion, precioLibro));

@@ -9,7 +9,7 @@ public class Libro {
     private String paisAutor;
     private int numPaginas;
     private int anyoEdicion;
-    private String precioLibro;
+    private double precioLibro;
 
     /**
      * Constructor parametrizado de la clase Libro
@@ -24,7 +24,7 @@ public class Libro {
      * @param anyoEdicion (Parámetro tipo int que define el año que se editó el libro)
      * @param precioLibro (Parámetro tipo String que define el precio del libro)
      */
-    public Libro(int codigoLibro, String nombreLibro, String editorial, String autor, String genero, String paisAutor, int numPaginas, int anyoEdicion, String precioLibro) {
+    public Libro(int codigoLibro, String nombreLibro, String editorial, String autor, String genero, String paisAutor, int numPaginas, int anyoEdicion, double precioLibro) {
         this.codigoLibro = codigoLibro;
         this.nombreLibro = nombreLibro;
         this.editorial = editorial;
@@ -103,11 +103,11 @@ public class Libro {
         this.anyoEdicion = anyoEdicion;
     }
 
-    public String getPrecioLibro() {
+    public double getPrecioLibro() {
         return precioLibro;
     }
 
-    public void setPrecioLibro(String precioLibro) {
+    public void setPrecioLibro(double precioLibro) {
         this.precioLibro = precioLibro;
     }
 

@@ -1,12 +1,14 @@
 package peval3;
 
+import java.time.LocalDate;
+
 public class Prestamo {
     private int codigoPrestamo;
     private Libro libro;
     private Usuario usuario;
-    private String fechaSalida;
-    private String fechaMaxDevolucion;
-    private String fechaDevolucion;
+    private LocalDate fechaSalida;
+    private LocalDate fechaMaxDevolucion;
+    private LocalDate fechaDevolucion;
 
     /**
      * Constructor parametrizado de la clase Prestamo
@@ -14,11 +16,11 @@ public class Prestamo {
      * @param codigoPrestamo     (Parámetro tipo int que define el código del préstamo)
      * @param libro              (Parámetro tipo Libro que sirve para referenciar el libro al que está relacionado el préstamo)
      * @param usuario            (Parámetro tipo Usuario que sirve para referenciar el usuario al que está relacionado el préstamo)
-     * @param fechaSalida        (Parámetro tipo String que define la fecha de salida del prestamo)
-     * @param fechaMaxDevolucion (Parámetro tipo String que define la fecha máxima de devolución del prestamo)
-     * @param fechaDevolucion    (Parámetro tipo String que define la fecha de devolución del prestamo)
+     * @param fechaSalida        (Parámetro tipo LocalDate que define la fecha de salida del prestamo)
+     * @param fechaMaxDevolucion (Parámetro tipo LocalDate que define la fecha máxima de devolución del prestamo)
+     * @param fechaDevolucion    (Parámetro tipo LocalDate que define la fecha de devolución del prestamo)
      */
-    public Prestamo(int codigoPrestamo, Libro libro, Usuario usuario, String fechaSalida, String fechaMaxDevolucion, String fechaDevolucion) {
+    public Prestamo(int codigoPrestamo, Libro libro, Usuario usuario, LocalDate fechaSalida, LocalDate fechaMaxDevolucion, LocalDate fechaDevolucion) {
         this.codigoPrestamo = codigoPrestamo;
         this.libro = libro;
         this.usuario = usuario;
@@ -51,27 +53,27 @@ public class Prestamo {
         this.usuario = usuario;
     }
 
-    public String getFechaSalida() {
+    public LocalDate getFechaSalida() {
         return fechaSalida;
     }
 
-    public void setFechaSalida(String fechaSalida) {
+    public void setFechaSalida(LocalDate fechaSalida) {
         this.fechaSalida = fechaSalida;
     }
 
-    public String getFechaMaxDevolucion() {
+    public LocalDate getFechaMaxDevolucion() {
         return fechaMaxDevolucion;
     }
 
-    public void setFechaMaxDevolucion(String fechaMaxDevolucion) {
+    public void setFechaMaxDevolucion(LocalDate fechaMaxDevolucion) {
         this.fechaMaxDevolucion = fechaMaxDevolucion;
     }
 
-    public String getFechaDevolucion() {
+    public LocalDate getFechaDevolucion() {
         return fechaDevolucion;
     }
 
-    public void setFechaDevolucion(String fechaDevolucion) {
+    public void setFechaDevolucion(LocalDate fechaDevolucion) {
         this.fechaDevolucion = fechaDevolucion;
     }
 
