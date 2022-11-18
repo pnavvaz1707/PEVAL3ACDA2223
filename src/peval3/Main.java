@@ -4,11 +4,14 @@ import org.neodatis.odb.ODB;
 import org.neodatis.odb.ODBFactory;
 import org.neodatis.odb.Objects;
 import org.neodatis.odb.core.query.IQuery;
+import org.neodatis.odb.core.query.criteria.And;
+import org.neodatis.odb.core.query.criteria.ICriterion;
 import org.neodatis.odb.core.query.criteria.Where;
 import org.neodatis.odb.impl.core.query.criteria.CriteriaQuery;
 import org.neodatis.odb.impl.core.query.values.ValuesCriteriaQuery;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Scanner;
 
 public class Main {
@@ -42,7 +45,7 @@ public class Main {
                     registrarLibro();
                     break;
                 case 3:
-                    mostrarUsuarios();
+                    mostrarUsuarios(odb.getObjects(Usuario.class));
 
                     try {
                         Usuario usuario = obtenerUsuario("Introduce el código del usuario que desees borrar");
@@ -73,7 +76,7 @@ public class Main {
                     }
                     break;
                 case 4:
-                    mostrarPrestamos();
+                    mostrarPrestamos(odb.getObjects(Prestamo.class));
 
                     System.out.println("Introduce el código del préstamo que desees modificar");
                     int codigoPrestamoSel = teclado.nextInt();
@@ -91,7 +94,7 @@ public class Main {
 
                         if (respuestaModificacion == 1) {
                             try {
-                                mostrarUsuarios();
+                                mostrarUsuarios(odb.getObjects(Usuario.class));
                                 Usuario usuario = obtenerUsuario("Selecciona el código de usuario al que desea asignarle este préstamo");
                                 prestamo.setUsuario(usuario);
                                 odb.store(prestamo);
@@ -108,23 +111,44 @@ public class Main {
                     }
                     break;
                 case 5:
-                    mostrarUsuarios();
+                    mostrarUsuarios(odb.getObjects(Usuario.class));
                     Usuario usuario = obtenerUsuario("Selecciona el código de usuario del cual desea consultar sus préstamos tardíos");
-                    IQuery queryPrestamosUsuario = odb.criteriaQuery(Prestamo.class, Where.equal("usuario", usuario));
+                    IQuery queryPrestamosUsuario = new CriteriaQuery(Prestamo.class, Where.equal("usuario", usuario));
 
                     Objects<Prestamo> prestamosUsuario = odb.getObjects(queryPrestamosUsuario);
 
                     for (Prestamo prestamo : prestamosUsuario) {
-                        IQuery queryPrestamosTardios = odb.criteriaQuery(Prestamo.class, Where.gt("fechaDevolucion", prestamo.getFechaMaxDevolucion()));
+                        IQuery queryPrestamosTardios = new CriteriaQuery(Prestamo.class, Where.gt("fechaDevolucion", prestamo.getFechaMaxDevolucion()));
                         Prestamo prestamo1 = (Prestamo) odb.getObjects(queryPrestamosTardios).getFirst();
                         System.err.println(prestamo1);
                     }
-
-
                     break;
                 case 6:
+                    String genero = Utilidades.leerCadena("Introduce el género");
+                    double precio = Utilidades.solicitarDoubleEnUnRango(0, Double.MAX_VALUE, "Introduce el precio");
+
+                    ICriterion criterionLibroPrecioGenero = new And().add(Where.equal("genero", genero)).add(Where.equal("precioLibro", precio));
+                    IQuery query = new CriteriaQuery(Libro.class, criterionLibroPrecioGenero);
+
+                    Objects<Libro> libros = odb.getObjects(query);
+
+                    mostrarLibros(libros);
                     break;
                 case 7:
+                    String provincia = Utilidades.leerCadena("Introduce la provincia");
+                    Date fechaInicio, fechaFinal;
+                    do {
+                        fechaInicio = Conversor.solicitarFecha("Introduce la primera fecha");
+                        fechaFinal = Conversor.solicitarFecha("Introduce la segunda fecha");
+
+                    } while (fechaInicio.after(fechaFinal));
+
+                    ICriterion criterionPrestamosProvinciaPrecio = new And().add(Where.equal("usuario.provincia", provincia)).add(Where.gt("fechaSalida", fechaInicio)).add(Where.lt("fechaSalida", fechaFinal));
+                    IQuery queryPrestamosProvinciaPrecio = odb.criteriaQuery(Prestamo.class, criterionPrestamosProvinciaPrecio);
+
+                    Objects<Prestamo> prestamos = odb.getObjects(queryPrestamosProvinciaPrecio);
+
+                    mostrarPrestamos(prestamos);
                     break;
             }
         } while (respuesta != MENU_OPCIONES.length);
@@ -139,8 +163,27 @@ public class Main {
         return (Usuario) odb.getObjects(queryUsuarioSel).getFirst();
     }
 
-    private static void mostrarUsuarios() {
-        Objects<Usuario> usuarios = odb.getObjects(Usuario.class);
+    private static void mostrarLibros(Objects<Libro> libros) {
+        Libro libro;
+
+        int contador = 0;
+        boolean sigue = true;
+
+        while (libros.hasNext() && sigue) {
+            libro = libros.next();
+
+            System.out.println(libro);
+            System.out.println("////////////////////////////////////////////////////////////////////////////////");
+            contador++;
+
+            if (contador == 10) {
+                sigue = Utilidades.sigPagina();
+                contador = 0;
+            }
+        }
+    }
+
+    private static void mostrarUsuarios(Objects<Usuario> usuarios) {
         Usuario usuario;
 
         int contador = 0;
@@ -160,8 +203,7 @@ public class Main {
         }
     }
 
-    private static void mostrarPrestamos() {
-        Objects<Prestamo> prestamos = odb.getObjects(Prestamo.class);
+    private static void mostrarPrestamos(Objects<Prestamo> prestamos) {
         Prestamo prestamo;
 
         int contador = 0;

@@ -7,9 +7,12 @@ import org.neodatis.odb.core.query.criteria.Where;
 import org.neodatis.odb.impl.core.query.criteria.CriteriaQuery;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -29,9 +32,9 @@ public class Conversor {
     private static final String formato = "dd/MM/yyyy";
 
     /**
-     * Objeto tipo DateTimeFormatter que permite formatear las fechas según el formato indicado
+     * Objeto tipo SimpleDateFormat que permite formatear las fechas según el formato indicado
      */
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formato);
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(formato);
 
     /**
      * Método que se conecta a una base de datos SQL con los datos enviados como parámetro (bdNombre,
@@ -68,7 +71,9 @@ public class Conversor {
         try {
             crearPrestamos(odb);
         } catch (SQLException e) {
-            System.err.println("Ha habido un error en la creación de prestamos (" + e.getMessage() + ")");
+            System.err.println("Ha habido un error en la creación de préstamos");
+        } catch (ParseException e) {
+            System.err.println("Ha habido un error al convertir las fechas");
         }
     }
 
@@ -139,7 +144,7 @@ public class Conversor {
      * @param odb (Objeto que referencia la base de datos Neodatis)
      * @throws SQLException (Excepción que ocurre en caso de que haya un error en la sentencia SQL)
      */
-    private static void crearPrestamos(ODB odb) throws SQLException {
+    private static void crearPrestamos(ODB odb) throws SQLException, ParseException {
         Statement sentencia = conexion.createStatement();
         String sql = "SELECT * FROM PRESTAMOS";
         ResultSet rs = sentencia.executeQuery(sql);
@@ -147,7 +152,7 @@ public class Conversor {
         int codigoPrestamo;
         Libro libro;
         Usuario usuario;
-        LocalDate fechaSalida, fechaMaxDevolucion, fechaDevolucion;
+        Date fechaSalida, fechaMaxDevolucion, fechaDevolucion;
 
         IQuery query;
 
@@ -161,9 +166,9 @@ public class Conversor {
             query = new CriteriaQuery(Usuario.class, Where.equal("codigoUsuario", rs.getInt(3)));
             usuario = (Usuario) odb.getObjects(query).getFirst();
 
-            fechaSalida = obtenerFechaLocalDate(rs.getString(4));
-            fechaMaxDevolucion = obtenerFechaLocalDate(rs.getString(5));
-            fechaDevolucion = obtenerFechaLocalDate(rs.getString(6));
+            fechaSalida = formatter.parse((rs.getString(4)));
+            fechaMaxDevolucion = formatter.parse((rs.getString(5)));
+            fechaDevolucion = formatter.parse((rs.getString(6)));
 
             odb.store(new Prestamo(codigoPrestamo, libro, usuario, fechaSalida, fechaMaxDevolucion, fechaDevolucion));
             odb.commit();
@@ -175,29 +180,20 @@ public class Conversor {
      *
      * @return (Devuelve la fecha en tipo String para poder almacenarla en la base de datos)
      */
-    public static String obtenerFechaString() {
+    public static Date solicitarFecha(String msg) {
         Scanner teclado = new Scanner(System.in);
-        LocalDate fecha = null;
+        Date fecha = null;
         boolean sigue = true;
         while (sigue) {
             try {
+                System.out.println(msg);
                 String fechaTeclado = teclado.nextLine();
-                fecha = LocalDate.parse(fechaTeclado, formatter);
+                fecha = formatter.parse(fechaTeclado);
                 sigue = false;
-            } catch (DateTimeParseException e) {
+            } catch (ParseException e) {
                 System.err.println("La fecha introducida es incorrecta, debe cumplir el formato (" + formato + ")");
             }
         }
-        return fecha.format(formatter);
-    }
-
-    /**
-     * Método para transformar las fechas tipo String a LocalDate para comparar si se ha entregado tarde un préstamo
-     *
-     * @param fechaString (La fecha en formato String que se quiere pasar a LocalDate siguiendo el formato indicado)
-     * @return (Devuelve un objeto LocalDate que referencia la misma fecha que la introducida como parámetro)
-     */
-    public static LocalDate obtenerFechaLocalDate(String fechaString) {
-        return LocalDate.parse(fechaString, formatter);
+        return fecha;
     }
 }

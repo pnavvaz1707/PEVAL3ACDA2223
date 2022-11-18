@@ -1,14 +1,15 @@
 package peval3;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public class Prestamo {
     private int codigoPrestamo;
     private Libro libro;
     private Usuario usuario;
-    private LocalDate fechaSalida;
-    private LocalDate fechaMaxDevolucion;
-    private LocalDate fechaDevolucion;
+    private Date fechaSalida;
+    private Date fechaMaxDevolucion;
+    private Date fechaDevolucion;
 
     /**
      * Constructor parametrizado de la clase Prestamo
@@ -20,7 +21,7 @@ public class Prestamo {
      * @param fechaMaxDevolucion (Parámetro tipo LocalDate que define la fecha máxima de devolución del prestamo)
      * @param fechaDevolucion    (Parámetro tipo LocalDate que define la fecha de devolución del prestamo)
      */
-    public Prestamo(int codigoPrestamo, Libro libro, Usuario usuario, LocalDate fechaSalida, LocalDate fechaMaxDevolucion, LocalDate fechaDevolucion) {
+    public Prestamo(int codigoPrestamo, Libro libro, Usuario usuario, Date fechaSalida, Date fechaMaxDevolucion, Date fechaDevolucion) {
         this.codigoPrestamo = codigoPrestamo;
         this.libro = libro;
         this.usuario = usuario;
@@ -53,27 +54,27 @@ public class Prestamo {
         this.usuario = usuario;
     }
 
-    public LocalDate getFechaSalida() {
+    public Date getFechaSalida() {
         return fechaSalida;
     }
 
-    public void setFechaSalida(LocalDate fechaSalida) {
+    public void setFechaSalida(Date fechaSalida) {
         this.fechaSalida = fechaSalida;
     }
 
-    public LocalDate getFechaMaxDevolucion() {
+    public Date getFechaMaxDevolucion() {
         return fechaMaxDevolucion;
     }
 
-    public void setFechaMaxDevolucion(LocalDate fechaMaxDevolucion) {
+    public void setFechaMaxDevolucion(Date fechaMaxDevolucion) {
         this.fechaMaxDevolucion = fechaMaxDevolucion;
     }
 
-    public LocalDate getFechaDevolucion() {
+    public Date getFechaDevolucion() {
         return fechaDevolucion;
     }
 
-    public void setFechaDevolucion(LocalDate fechaDevolucion) {
+    public void setFechaDevolucion(Date fechaDevolucion) {
         this.fechaDevolucion = fechaDevolucion;
     }
 
