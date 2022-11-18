@@ -1,14 +1,52 @@
 package peval3;
 
+/**
+ * Clase Prestamo que simula la tabla LIBROS
+ */
 public class Libro {
+    /**
+     * Campo tipo int que define el código del libro
+     */
     private int codigoLibro;
+
+    /**
+     * Campo tipo String que define el nombre del libro
+     */
     private String nombreLibro;
+
+    /**
+     * Campo tipo String que define la editorial del libro
+     */
     private String editorial;
+
+    /**
+     * Campo tipo String que define el nombre del autor del libro
+     */
     private String autor;
+
+    /**
+     * Campo tipo String que define el género del libro
+     */
     private String genero;
+
+    /**
+     * Campo tipo String que define el país del autor del libro
+     */
     private String paisAutor;
+
+    /**
+     * Campo tipo entero que define el número de páginas del libro
+     */
     private int numPaginas;
+
+    /**
+     * Campo tipo entero que define el año de edición del libro
+     */
     private int anyoEdicion;
+
+    /**
+     * Campo tipo double que define el precio del libro
+     */
     private double precioLibro;
 
     /**
@@ -22,7 +60,7 @@ public class Libro {
      * @param paisAutor   (Parámetro tipo String que define el pais del autor del libro)
      * @param numPaginas  (Parámetro tipo int que define el número de páginas que tiene el libro)
      * @param anyoEdicion (Parámetro tipo int que define el año que se editó el libro)
-     * @param precioLibro (Parámetro tipo String que define el precio del libro)
+     * @param precioLibro (Parámetro tipo double que define el precio del libro)
      */
     public Libro(int codigoLibro, String nombreLibro, String editorial, String autor, String genero, String paisAutor, int numPaginas, int anyoEdicion, double precioLibro) {
         this.codigoLibro = codigoLibro;

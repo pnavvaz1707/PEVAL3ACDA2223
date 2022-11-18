@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="neodatis-odb-1.9.30.689">
     <CLASSES>
-      <root url="jar://$USER_HOME$/OneDrive/Escritorio/librerias/neodatis-odb-1.9.30.689.jar!/" />
-      <root url="jar://$USER_HOME$/OneDrive/Escritorio/librerias/com.mysql.jdbc_5.1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../librerias/com.mysql.jdbc_5.1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../librerias/neodatis-odb-1.9.30.689.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
