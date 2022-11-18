@@ -1,7 +1,7 @@
 package peval3;
 
 /**
- * Clase Prestamo que simula la tabla LIBROS
+ * Clase Libro que simula la tabla LIBROS
  */
 public class Libro {
     /**

@@ -10,6 +10,11 @@ import org.neodatis.odb.impl.core.query.values.ValuesCriteriaQuery;
 
 import java.util.Date;
 
+/**
+ * PEVAL 3 DE ACDA
+ *
+ * @author Pablo Navarro Vázquez
+ */
 public class Main {
 
     /**

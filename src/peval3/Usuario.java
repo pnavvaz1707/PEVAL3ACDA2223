@@ -1,7 +1,7 @@
 package peval3;
 
 /**
- * Clase Prestamo que simula la tabla USUARIO
+ * Clase Usuario que simula la tabla USUARIO
  */
 public class Usuario {
     /**

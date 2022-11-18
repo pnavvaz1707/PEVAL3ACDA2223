@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Scanner;
 
+/**
+ * Clase utilizada para realizar las operaciones CRUD (Create, Read, Update y Delete)
+ */
 public class CRUD {
 
     /**

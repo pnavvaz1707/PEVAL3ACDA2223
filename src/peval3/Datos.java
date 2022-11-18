@@ -1,5 +1,8 @@
 package peval3;
 
+/**
+ * Clase para almacenar datos que se usarán en todos los programas
+ */
 public class Datos {
     /**
      * Ruta donde se almacenará la base de datos Neodatis
